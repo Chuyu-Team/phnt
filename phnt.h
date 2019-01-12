@@ -112,8 +112,6 @@ extern "C" {
 
 #include <ntmisc.h>
 
-#include <ntzwapi.h>
-
 #include <ntsmss.h>
 
 #include <subprocesstag.h>
