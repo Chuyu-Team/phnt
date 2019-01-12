@@ -23,6 +23,18 @@
 #pragma comment(lib,"samlib.lib")
 #pragma comment(lib,"winsta.lib")
 
+// Warnings which disabled for compiling
+#if _MSC_VER >= 1200
+#pragma warning(push)
+// nonstandard extension used : nameless struct/union
+#pragma warning(disable:4201)
+// 'struct_name' : structure was padded due to __declspec(align())
+#pragma warning(disable:4324)
+// 'enumeration': a forward declaration of an unscoped enumeration must have an
+// underlying type (int assumed)
+#pragma warning(disable:4471)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -71,3 +83,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#if _MSC_VER >= 1200
+#pragma warning(pop)
+#endif
+
