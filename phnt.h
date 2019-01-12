@@ -74,6 +74,8 @@ extern "C" {
 #include <ntldr.h>
 #include <ntexapi.h>
 
+#include <ntgdi.h>
+
 #include <ntmmapi.h>
 #include <ntobapi.h>
 #include <ntpsapi.h>
@@ -105,6 +107,12 @@ extern "C" {
 #include <ntmisc.h>
 
 #include <ntzwapi.h>
+
+#include <ntsmss.h>
+
+#include <subprocesstag.h>
+
+#include <winsta.h>
 
 #endif
 
