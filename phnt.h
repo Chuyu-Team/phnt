@@ -31,23 +31,7 @@
 // 5. rev.
 
 // Version
-#define PHNT_WIN2K 50
-#define PHNT_WINXP 51
-#define PHNT_WS03 52
-#define PHNT_VISTA 60
-#define PHNT_WIN7 61
-#define PHNT_WIN8 62
-#define PHNT_WINBLUE 63
-#define PHNT_THRESHOLD 100
-#define PHNT_THRESHOLD2 101
-#define PHNT_REDSTONE 102
-#define PHNT_REDSTONE2 103
-#define PHNT_REDSTONE3 104
-#define PHNT_REDSTONE4 105
-
-#ifndef PHNT_VERSION
-#define PHNT_VERSION PHNT_WIN7
-#endif
+#include <SDKDDKVer.h>
 
 #pragma comment(lib,"ntdll.lib")
 #pragma comment(lib,"samlib.lib")

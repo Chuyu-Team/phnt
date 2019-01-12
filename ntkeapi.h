@@ -130,7 +130,7 @@ NtCallbackReturn(
     _In_ NTSTATUS Status
     );
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 NTSYSCALLAPI
 VOID
 NTAPI

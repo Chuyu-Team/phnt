@@ -58,7 +58,7 @@ NtTraceEvent(
     _In_ PVOID Fields
     );
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 // private
 NTSYSCALLAPI
 NTSTATUS

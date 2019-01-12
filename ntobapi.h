@@ -184,7 +184,7 @@ NtWaitForMultipleObjects(
     _In_opt_ PLARGE_INTEGER Timeout
     );
 
-#if (PHNT_VERSION >= PHNT_WS03)
+#if (NTDDI_VERSION >= NTDDI_WS03)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -224,7 +224,7 @@ NtClose(
     _In_ HANDLE Handle
     );
 
-#if (PHNT_VERSION >= PHNT_THRESHOLD)
+#if (NTDDI_VERSION >= NTDDI_WIN10)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -245,7 +245,7 @@ NtCreateDirectoryObject(
     _In_ POBJECT_ATTRIBUTES ObjectAttributes
     );
 
-#if (PHNT_VERSION >= PHNT_WIN8)
+#if (NTDDI_VERSION >= NTDDI_WIN8)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -288,7 +288,7 @@ NtQueryDirectoryObject(
 
 // Private namespaces
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 
 NTSYSCALLAPI
 NTSTATUS

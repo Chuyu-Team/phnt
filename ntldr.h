@@ -243,7 +243,7 @@ LdrGetDllHandleEx(
     _Out_opt_ PVOID *DllHandle
     );
 
-#if (PHNT_VERSION >= PHNT_WIN7)
+#if (NTDDI_VERSION >= NTDDI_WIN7)
 // rev
 NTSYSAPI
 NTSTATUS
@@ -254,7 +254,7 @@ LdrGetDllHandleByMapping(
     );
 #endif
 
-#if (PHNT_VERSION >= PHNT_WIN7)
+#if (NTDDI_VERSION >= NTDDI_WIN7)
 // rev
 NTSYSAPI
 NTSTATUS
@@ -266,7 +266,7 @@ LdrGetDllHandleByName(
     );
 #endif
 
-#if (PHNT_VERSION >= PHNT_WIN8)
+#if (NTDDI_VERSION >= NTDDI_WIN8)
 // rev
 NTSYSAPI
 NTSTATUS
@@ -316,7 +316,7 @@ LdrGetProcedureAddress(
 // rev
 #define LDR_GET_PROCEDURE_ADDRESS_DONT_RECORD_FORWARDER 0x00000001
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 // private
 NTSYSAPI
 NTSTATUS
@@ -339,7 +339,7 @@ LdrGetKnownDllSectionHandle(
     _Out_ PHANDLE Section
     );
 
-#if (PHNT_VERSION >= PHNT_THRESHOLD)
+#if (NTDDI_VERSION >= NTDDI_WIN10)
 // rev
 NTSYSAPI
 NTSTATUS
@@ -464,7 +464,7 @@ typedef struct _LDR_VERIFY_IMAGE_INFO
     USHORT ImageCharacteristics;
 } LDR_VERIFY_IMAGE_INFO, *PLDR_VERIFY_IMAGE_INFO;
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 // private
 NTSYSAPI
 NTSTATUS
@@ -475,7 +475,7 @@ LdrVerifyImageMatchesChecksumEx(
     );
 #endif
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 // private
 NTSYSAPI
 NTSTATUS
@@ -522,7 +522,7 @@ typedef VOID (NTAPI *PLDR_DLL_NOTIFICATION_FUNCTION)(
     _In_opt_ PVOID Context
     );
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 
 NTSYSAPI
 NTSTATUS
@@ -582,7 +582,7 @@ typedef struct _PS_SYSTEM_DLL_INIT_BLOCK
     PS_MITIGATION_AUDIT_OPTIONS_MAP MitigationAuditOptionsMap; // REDSTONE3
 } PS_SYSTEM_DLL_INIT_BLOCK, *PPS_SYSTEM_DLL_INIT_BLOCK;
 
-#if (PHNT_VERSION >= PHNT_THRESHOLD)
+#if (NTDDI_VERSION >= NTDDI_WIN10)
 // rev
 NTSYSAPI
 PPS_SYSTEM_DLL_INIT_BLOCK
@@ -594,7 +594,7 @@ LdrSystemDllInitBlock(
 
 // Load as data table
 
-#if (PHNT_VERSION >= PHNT_VISTA)
+#if (NTDDI_VERSION >= NTDDI_VISTA)
 
 // private
 NTSYSAPI

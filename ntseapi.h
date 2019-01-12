@@ -164,7 +164,7 @@ NtCreateToken(
     _In_ PTOKEN_SOURCE TokenSource
     );
 
-#if (PHNT_VERSION >= PHNT_WIN8)
+#if (NTDDI_VERSION >= NTDDI_WIN8)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -181,7 +181,7 @@ NtCreateLowBoxToken(
     );
 #endif
 
-#if (PHNT_VERSION >= PHNT_WIN8)
+#if (NTDDI_VERSION >= NTDDI_WIN8)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -303,7 +303,7 @@ NtAdjustGroupsToken(
     _Out_ PULONG ReturnLength
     );
 
-#if (PHNT_VERSION >= PHNT_WIN8)
+#if (NTDDI_VERSION >= NTDDI_WIN8)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -339,7 +339,7 @@ NtFilterToken(
     _Out_ PHANDLE NewTokenHandle
     );
 
-#if (PHNT_VERSION >= PHNT_WIN8)
+#if (NTDDI_VERSION >= NTDDI_WIN8)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -386,7 +386,7 @@ NtImpersonateAnonymousToken(
     _In_ HANDLE ThreadHandle
     );
 
-#if (PHNT_VERSION >= PHNT_WIN7)
+#if (NTDDI_VERSION >= NTDDI_WIN7)
 // rev
 NTSYSCALLAPI
 NTSTATUS
@@ -453,7 +453,7 @@ NtAccessCheckByTypeResultList(
 
 // Signing
 
-#if (PHNT_VERSION >= PHNT_THRESHOLD)
+#if (NTDDI_VERSION >= NTDDI_WIN10)
 
 NTSYSCALLAPI
 NTSTATUS
