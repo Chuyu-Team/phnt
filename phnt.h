@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _PHNT_H
-#define _PHNT_H
-
 // This header file provides access to NT APIs.
 
 // Definitions are annotated to indicate their source. If a definition is not annotated, it has been
@@ -84,6 +70,4 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

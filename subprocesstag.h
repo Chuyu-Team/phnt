@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _SUBPROCESSTAG_H
-#define _SUBPROCESSTAG_H
-
 // Subprocess tag information
 
 typedef enum _TAG_INFO_LEVEL
@@ -103,5 +89,3 @@ typedef DWORD (WINAPI *PQUERY_TAG_INFORMATION)(
     _In_ TAG_INFO_LEVEL eInfoLevel,
     _Inout_ PVOID pTagInfo
     );
-
-#endif

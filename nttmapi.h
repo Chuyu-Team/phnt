@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _NTTMAPI_H
-#define _NTTMAPI_H
-
 #if (NTDDI_VERSION >= NTDDI_VISTA)
 NTSYSCALLAPI
 NTSTATUS
@@ -479,6 +465,4 @@ NTAPI
 NtThawTransactions(
     VOID
     );
-#endif
-
 #endif

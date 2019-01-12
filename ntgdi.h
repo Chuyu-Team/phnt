@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _NTGDI_H
-#define _NTGDI_H
-
 #define GDI_MAX_HANDLE_COUNT 0x4000
 
 #define GDI_HANDLE_INDEX_SHIFT 0
@@ -128,5 +114,3 @@ typedef struct _GDI_SHARED_MEMORY
 {
     GDI_HANDLE_ENTRY Handles[GDI_MAX_HANDLE_COUNT];
 } GDI_SHARED_MEMORY, *PGDI_SHARED_MEMORY;
-
-#endif

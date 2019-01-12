@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _NTXCAPI_H
-#define _NTXCAPI_H
-
 NTSYSAPI
 BOOLEAN
 NTAPI
@@ -71,5 +57,3 @@ RtlAssert(
     ((!(_exp)) ? (DbgPrint("%s(%d): Soft assertion failed\n   Expression: %s\n", __FILE__, __LINE__, #_exp), FALSE) : TRUE)
 #define RTL_SOFT_ASSERTMSG(_msg, _exp) \
     ((!(_exp)) ? (DbgPrint("%s(%d): Soft assertion failed\n   Expression: %s\n   Message: %s\n", __FILE__, __LINE__, #_exp, (_msg)), FALSE) : TRUE)
-
-#endif

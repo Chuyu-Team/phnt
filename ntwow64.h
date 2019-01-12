@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _NTWOW64_H
-#define _NTWOW64_H
-
 #define WOW64_SYSTEM_DIRECTORY "SysWOW64"
 #define WOW64_SYSTEM_DIRECTORY_U L"SysWOW64"
 #define WOW64_X86_TAG " (x86)"
@@ -581,5 +567,3 @@ FORCEINLINE VOID UStrToUStr32(
     Destination->MaximumLength = Source->MaximumLength;
     Destination->Buffer = PtrToUlong(Source->Buffer);
 }
-
-#endif

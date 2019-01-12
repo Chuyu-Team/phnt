@@ -1,17 +1,3 @@
-/*
- * This file is part of the Process Hacker project - https://processhacker.sf.io/ 
- *
- * You can redistribute this file and/or modify it under the terms of the 
- * Attribution 4.0 International (CC BY 4.0) license. 
- * 
- * You must give appropriate credit, provide a link to the license, and 
- * indicate if changes were made. You may do so in any reasonable manner, but 
- * not in any way that suggests the licensor endorses you or your use.
- */
-
-#ifndef _NTOBAPI_H
-#define _NTOBAPI_H
-
 #define OBJECT_TYPE_CREATE 0x0001
 #define OBJECT_TYPE_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | 0x1)
 
@@ -348,5 +334,3 @@ NtQuerySymbolicLinkObject(
     _Inout_ PUNICODE_STRING LinkTarget,
     _Out_opt_ PULONG ReturnedLength
     );
-
-#endif
