@@ -5079,26 +5079,6 @@ RtlInitializeBitMap(
     _In_ ULONG SizeOfBitMap
     );
 
-#if (PHNT_MODE == PHNT_MODE_KERNEL || PHNT_VERSION >= PHNT_WIN8)
-NTSYSAPI
-VOID
-NTAPI
-RtlClearBit(
-    _In_ PRTL_BITMAP BitMapHeader,
-    _In_range_(<, BitMapHeader->SizeOfBitMap) ULONG BitNumber
-    );
-#endif
-
-#if (PHNT_MODE == PHNT_MODE_KERNEL || PHNT_VERSION >= PHNT_WIN8)
-NTSYSAPI
-VOID
-NTAPI
-RtlSetBit(
-    _In_ PRTL_BITMAP BitMapHeader,
-    _In_range_(<, BitMapHeader->SizeOfBitMap) ULONG BitNumber
-    );
-#endif
-
 _Check_return_
 NTSYSAPI
 BOOLEAN
@@ -5400,53 +5380,6 @@ RtlTestBitEx(
     _In_ PRTL_BITMAP_EX BitMapHeader,
     _In_range_(<, BitMapHeader->SizeOfBitMap) ULONG64 BitNumber
     );
-
-#if (PHNT_MODE == PHNT_MODE_KERNEL)
-// rev
-NTSYSAPI
-VOID
-NTAPI
-RtlClearAllBitsEx(
-    _In_ PRTL_BITMAP_EX BitMapHeader
-    );
-
-// rev
-NTSYSAPI
-VOID
-NTAPI
-RtlClearBitEx(
-    _In_ PRTL_BITMAP_EX BitMapHeader,
-    _In_range_(<, BitMapHeader->SizeOfBitMap) ULONG64 BitNumber
-    );
-
-// rev
-NTSYSAPI
-VOID
-NTAPI
-RtlSetBitEx(
-    _In_ PRTL_BITMAP_EX BitMapHeader,
-    _In_range_(<, BitMapHeader->SizeOfBitMap) ULONG64 BitNumber
-    );
-
-// rev
-NTSYSAPI
-ULONG64
-NTAPI
-RtlFindSetBitsEx(
-    _In_ PRTL_BITMAP_EX BitMapHeader,
-    _In_ ULONG64 NumberToFind,
-    _In_ ULONG64 HintIndex
-    );
-
-NTSYSAPI
-ULONG64
-NTAPI
-RtlFindSetBitsAndClearEx(
-    _In_ PRTL_BITMAP_EX BitMapHeader,
-    _In_ ULONG64 NumberToFind,
-    _In_ ULONG64 HintIndex
-    );
-#endif
 
 #endif
 

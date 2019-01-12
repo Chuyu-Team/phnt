@@ -30,10 +30,6 @@
 // 4. winbase. Names and types may be incorrect.
 // 5. rev.
 
-// Mode
-#define PHNT_MODE_KERNEL 0
-#define PHNT_MODE_USER 1
-
 // Version
 #define PHNT_WIN2K 50
 #define PHNT_WINXP 51
@@ -49,10 +45,6 @@
 #define PHNT_REDSTONE3 104
 #define PHNT_REDSTONE4 105
 
-#ifndef PHNT_MODE
-#define PHNT_MODE PHNT_MODE_USER
-#endif
-
 #ifndef PHNT_VERSION
 #define PHNT_VERSION PHNT_WIN7
 #endif
@@ -61,21 +53,17 @@
 
 //#define PHNT_NO_INLINE_INIT_STRING
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 #pragma comment(lib,"ntdll.lib")
 #pragma comment(lib,"samlib.lib")
 #pragma comment(lib,"winsta.lib")
-#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 #include <phnt_ntdef.h>
 #include <ntnls.h>
 #include <ntkeapi.h>
-#endif
 
 #include <ntldr.h>
 #include <ntexapi.h>
@@ -86,7 +74,6 @@ extern "C" {
 #include <ntobapi.h>
 #include <ntpsapi.h>
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 #include <cfg.h>
 #include <ntdbg.h>
 #include <ntioapi.h>
@@ -96,9 +83,6 @@ extern "C" {
 #include <ntpoapi.h>
 #include <ntregapi.h>
 #include <ntrtl.h>
-#endif
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 #include <ntseapi.h>
 #include <nttmapi.h>
@@ -117,8 +101,6 @@ extern "C" {
 #include <subprocesstag.h>
 
 #include <winsta.h>
-
-#endif
 
 #ifdef __cplusplus
 }

@@ -12,44 +12,12 @@
 #ifndef _NTPSAPI_H
 #define _NTPSAPI_H
 
-#if (PHNT_MODE == PHNT_MODE_KERNEL)
-#define PROCESS_TERMINATE 0x0001
-#define PROCESS_CREATE_THREAD 0x0002
-#define PROCESS_SET_SESSIONID 0x0004
-#define PROCESS_VM_OPERATION 0x0008
-#define PROCESS_VM_READ 0x0010
-#define PROCESS_VM_WRITE 0x0020
-#define PROCESS_CREATE_PROCESS 0x0080
-#define PROCESS_SET_QUOTA 0x0100
-#define PROCESS_SET_INFORMATION 0x0200
-#define PROCESS_QUERY_INFORMATION 0x0400
-#define PROCESS_SET_PORT 0x0800
-#define PROCESS_SUSPEND_RESUME 0x0800
-#define PROCESS_QUERY_LIMITED_INFORMATION 0x1000
-#else
 #ifndef PROCESS_SET_PORT
 #define PROCESS_SET_PORT 0x0800
 #endif
-#endif
 
-#if (PHNT_MODE == PHNT_MODE_KERNEL)
-#define THREAD_QUERY_INFORMATION 0x0040
-#define THREAD_SET_THREAD_TOKEN 0x0080
-#define THREAD_IMPERSONATE 0x0100
-#define THREAD_DIRECT_IMPERSONATION 0x0200
-#else
 #ifndef THREAD_ALERT
 #define THREAD_ALERT 0x0004
-#endif
-#endif
-
-#if (PHNT_MODE == PHNT_MODE_KERNEL)
-#define JOB_OBJECT_ASSIGN_PROCESS 0x0001
-#define JOB_OBJECT_SET_ATTRIBUTES 0x0002
-#define JOB_OBJECT_QUERY 0x0004
-#define JOB_OBJECT_TERMINATE 0x0008
-#define JOB_OBJECT_SET_SECURITY_ATTRIBUTES 0x0010
-#define JOB_OBJECT_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0x1f)
 #endif
 
 #define GDI_HANDLE_BUFFER_SIZE32 34
@@ -104,8 +72,6 @@ typedef struct _WOW64_PROCESS
 #include <ntpebteb.h>
 
 // source:http://www.microsoft.com/whdc/system/Sysinternals/MoreThan64proc.mspx
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 typedef enum _PROCESSINFOCLASS
 {
     ProcessBasicInformation, // q: PROCESS_BASIC_INFORMATION, PROCESS_EXTENDED_BASIC_INFORMATION
@@ -203,9 +169,7 @@ typedef enum _PROCESSINFOCLASS
     ProcessSequenceNumber, // q: ULONGLONG
     MaxProcessInfoClass
 } PROCESSINFOCLASS;
-#endif
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 typedef enum _THREADINFOCLASS
 {
     ThreadBasicInformation, // q: THREAD_BASIC_INFORMATION
@@ -260,19 +224,14 @@ typedef enum _THREADINFOCLASS
     ThreadPowerThrottlingState, // THREAD_POWER_THROTTLING_STATE
     MaxThreadInfoClass
 } THREADINFOCLASS;
-#endif
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 // Use with both ProcessPagePriority and ThreadPagePriority
 typedef struct _PAGE_PRIORITY_INFORMATION
 {
     ULONG PagePriority;
 } PAGE_PRIORITY_INFORMATION, *PPAGE_PRIORITY_INFORMATION;
-#endif
 
 // Process information structures
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 typedef struct _PROCESS_BASIC_INFORMATION
 {
@@ -400,8 +359,6 @@ typedef struct _PROCESS_WS_WATCH_INFORMATION
     PVOID FaultingVa;
 } PROCESS_WS_WATCH_INFORMATION, *PPROCESS_WS_WATCH_INFORMATION;
 
-#endif
-
 // psapi:PSAPI_WS_WATCH_INFORMATION_EX
 typedef struct _PROCESS_WS_WATCH_INFORMATION_EX
 {
@@ -428,8 +385,6 @@ typedef struct _PROCESS_FOREGROUND_BACKGROUND
 {
     BOOLEAN Foreground;
 } PROCESS_FOREGROUND_BACKGROUND, *PPROCESS_FOREGROUND_BACKGROUND;
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 typedef struct _PROCESS_DEVICEMAP_INFORMATION
 {
@@ -509,8 +464,6 @@ typedef struct _PROCESS_HANDLE_TRACING_QUERY
     ULONG TotalTraces;
     PROCESS_HANDLE_TRACING_ENTRY HandleTrace[1];
 } PROCESS_HANDLE_TRACING_QUERY, *PPROCESS_HANDLE_TRACING_QUERY;
-
-#endif
 
 // private
 typedef struct _THREAD_TLS_INFORMATION
@@ -630,8 +583,6 @@ typedef struct _PROCESS_HANDLE_SNAPSHOT_INFORMATION
     ULONG_PTR Reserved;
     PROCESS_HANDLE_TABLE_ENTRY_INFO Handles[1];
 } PROCESS_HANDLE_SNAPSHOT_INFORMATION, *PPROCESS_HANDLE_SNAPSHOT_INFORMATION;
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 // private
 typedef struct _PROCESS_MITIGATION_POLICY_INFORMATION
@@ -863,8 +814,6 @@ typedef union _PROCESS_SYSTEM_RESOURCE_MANAGEMENT
 
 // end_private
 
-#endif
-
 // Thread information structures
 
 typedef struct _THREAD_BASIC_INFORMATION
@@ -998,7 +947,6 @@ typedef struct _THREAD_NAME_INFORMATION
     UNICODE_STRING ThreadName;
 } THREAD_NAME_INFORMATION, *PTHREAD_NAME_INFORMATION;
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 // private
 typedef enum _SUBSYSTEM_INFORMATION_TYPE 
 {
@@ -1006,11 +954,8 @@ typedef enum _SUBSYSTEM_INFORMATION_TYPE
     SubsystemInformationTypeWSL,
     MaxSubsystemInformationType
 } SUBSYSTEM_INFORMATION_TYPE;
-#endif
 
 // Processes
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -1152,11 +1097,7 @@ NtQueryPortInformationProcess(
     VOID
     );
 
-#endif
-
 // Threads
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -1355,11 +1296,7 @@ NtWaitForAlertByThreadId(
 
 #endif
 
-#endif
-
 // User processes and threads
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 // Attributes
 
@@ -1714,11 +1651,7 @@ NtCreateThreadEx(
     );
 #endif
 
-#endif
-
 // Job objects
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 // JOBOBJECTINFOCLASS
 // Note: We don't use an enum since it conflicts with the Windows SDK.
@@ -1955,11 +1888,7 @@ NtRevertContainerImpersonation(
     );
 #endif
 
-#endif
-
 // Reserve objects
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 // private
 typedef enum _MEMORY_RESERVE_TYPE
@@ -1978,8 +1907,6 @@ NtAllocateReserveObject(
     _In_ POBJECT_ATTRIBUTES ObjectAttributes,
     _In_ MEMORY_RESERVE_TYPE Type
     );
-#endif
-
 #endif
 
 #endif

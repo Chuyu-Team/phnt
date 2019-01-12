@@ -12,8 +12,6 @@
 #ifndef _NTLDR_H
 #define _NTLDR_H
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
-
 // DLLs
 
 typedef BOOLEAN (NTAPI *PLDR_INIT_ROUTINE)(
@@ -722,8 +720,6 @@ LdrFindEntryForAddress(
     _Out_ PLDR_DATA_TABLE_ENTRY *Entry
     );
 
-#endif // (PHNT_MODE != PHNT_MODE_KERNEL)
-
 // Module information
 
 typedef struct _RTL_PROCESS_MODULE_INFORMATION
@@ -755,8 +751,6 @@ typedef struct _RTL_PROCESS_MODULE_INFORMATION_EX
     ULONG TimeDateStamp;
     PVOID DefaultBase;
 } RTL_PROCESS_MODULE_INFORMATION_EX, *PRTL_PROCESS_MODULE_INFORMATION_EX;
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSAPI
 NTSTATUS
@@ -926,7 +920,5 @@ NTAPI
 LdrControlFlowGuardEnforced(
     VOID
     );
-
-#endif // (PHNT_MODE != PHNT_MODE_KERNEL)
 
 #endif

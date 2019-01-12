@@ -12,23 +12,17 @@
 #ifndef _NTOBAPI_H
 #define _NTOBAPI_H
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 #define OBJECT_TYPE_CREATE 0x0001
 #define OBJECT_TYPE_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | 0x1)
-#endif
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 #define DIRECTORY_QUERY 0x0001
 #define DIRECTORY_TRAVERSE 0x0002
 #define DIRECTORY_CREATE_OBJECT 0x0004
 #define DIRECTORY_CREATE_SUBDIRECTORY 0x0008
 #define DIRECTORY_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | 0xf)
-#endif
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 #define SYMBOLIC_LINK_QUERY 0x0001
 #define SYMBOLIC_LINK_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | 0x1)
-#endif
 
 #define OBJ_PROTECT_CLOSE 0x00000001
 #ifndef OBJ_INHERIT
@@ -36,7 +30,6 @@
 #endif
 #define OBJ_AUDIT_OBJECT_CLOSE 0x00000004
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 typedef enum _OBJECT_INFORMATION_CLASS
 {
     ObjectBasicInformation, // OBJECT_BASIC_INFORMATION
@@ -48,12 +41,6 @@ typedef enum _OBJECT_INFORMATION_CLASS
     ObjectSessionObjectInformation,
     MaxObjectInfoClass
 } OBJECT_INFORMATION_CLASS;
-#else
-#define ObjectNameInformation 1
-#define ObjectTypesInformation 3
-#define ObjectHandleFlagInformation 4
-#define ObjectSessionInformation 5
-#endif
 
 typedef struct _OBJECT_BASIC_INFORMATION
 {
@@ -70,12 +57,10 @@ typedef struct _OBJECT_BASIC_INFORMATION
     LARGE_INTEGER CreationTime;
 } OBJECT_BASIC_INFORMATION, *POBJECT_BASIC_INFORMATION;
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 typedef struct _OBJECT_NAME_INFORMATION
 {
     UNICODE_STRING Name;
 } OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
-#endif
 
 typedef struct _OBJECT_TYPE_INFORMATION
 {
@@ -116,8 +101,6 @@ typedef struct _OBJECT_HANDLE_FLAG_INFORMATION
 } OBJECT_HANDLE_FLAG_INFORMATION, *POBJECT_HANDLE_FLAG_INFORMATION;
 
 // Objects, handles
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -251,11 +234,7 @@ NtCompareObjects(
     );
 #endif
 
-#endif
-
 // Directory objects
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -307,11 +286,7 @@ NtQueryDirectoryObject(
     _Out_opt_ PULONG ReturnLength
     );
 
-#endif
-
 // Private namespaces
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 #if (PHNT_VERSION >= PHNT_VISTA)
 
@@ -344,11 +319,7 @@ NtDeletePrivateNamespace(
 
 #endif
 
-#endif
-
 // Symbolic links
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -377,7 +348,5 @@ NtQuerySymbolicLinkObject(
     _Inout_ PUNICODE_STRING LinkTarget,
     _Out_opt_ PULONG ReturnedLength
     );
-
-#endif
 
 #endif

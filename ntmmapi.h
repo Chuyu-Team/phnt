@@ -12,68 +12,6 @@
 #ifndef _NTMMAPI_H
 #define _NTMMAPI_H
 
-#if (PHNT_MODE == PHNT_MODE_KERNEL)
-
-// Protection constants
-
-#define PAGE_NOACCESS 0x01
-#define PAGE_READONLY 0x02
-#define PAGE_READWRITE 0x04
-#define PAGE_WRITECOPY 0x08
-#define PAGE_EXECUTE 0x10
-#define PAGE_EXECUTE_READ 0x20
-#define PAGE_EXECUTE_READWRITE 0x40
-#define PAGE_EXECUTE_WRITECOPY 0x80
-#define PAGE_GUARD 0x100
-#define PAGE_NOCACHE 0x200
-#define PAGE_WRITECOMBINE 0x400
-
-#define PAGE_REVERT_TO_FILE_MAP     0x80000000
-#define PAGE_ENCLAVE_THREAD_CONTROL 0x80000000
-#define PAGE_TARGETS_NO_UPDATE      0x40000000
-#define PAGE_TARGETS_INVALID        0x40000000
-#define PAGE_ENCLAVE_UNVALIDATED    0x20000000
-
-// Region and section constants
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
-#define MEM_COMMIT 0x1000
-#define MEM_RESERVE 0x2000
-#define MEM_DECOMMIT 0x4000
-#define MEM_RELEASE 0x8000
-#define MEM_FREE 0x10000
-#define MEM_PRIVATE 0x20000
-#define MEM_MAPPED 0x40000
-#define MEM_RESET 0x80000
-#define MEM_TOP_DOWN 0x100000
-#endif
-#define MEM_WRITE_WATCH 0x200000
-#define MEM_PHYSICAL 0x400000
-#define MEM_ROTATE 0x800000
-#define MEM_DIFFERENT_IMAGE_BASE_OK 0x800000
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
-#define MEM_RESET_UNDO 0x1000000
-#endif
-#define MEM_LARGE_PAGES 0x20000000
-#define MEM_4MB_PAGES 0x80000000
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
-#define SEC_FILE 0x800000
-#endif
-#define SEC_IMAGE 0x1000000
-#define SEC_PROTECTED_IMAGE 0x2000000
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
-#define SEC_RESERVE 0x4000000
-#define SEC_COMMIT 0x8000000
-#endif
-#define SEC_NOCACHE 0x10000000
-#define SEC_WRITECOMBINE 0x40000000
-#define SEC_LARGE_PAGES 0x80000000
-#define SEC_IMAGE_NO_EXECUTE (SEC_IMAGE | SEC_NOCACHE)
-#define MEM_IMAGE SEC_IMAGE
-
-#endif
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 // private
 typedef enum _MEMORY_INFORMATION_CLASS
 {
@@ -89,19 +27,6 @@ typedef enum _MEMORY_INFORMATION_CLASS
     MemoryEnclaveImageInformation, // MEMORY_ENCLAVE_IMAGE_INFORMATION // since REDSTONE3
     MemoryBasicInformationCapped
 } MEMORY_INFORMATION_CLASS;
-#else
-#define MemoryBasicInformation 0x0
-#define MemoryWorkingSetInformation 0x1
-#define MemoryMappedFilenameInformation 0x2
-#define MemoryRegionInformation 0x3
-#define MemoryWorkingSetExInformation 0x4
-#define MemorySharedCommitInformation 0x5
-#define MemoryImageInformation 0x6
-#define MemoryRegionInformationEx 0x7
-#define MemoryPrivilegedBasicInformation 0x8
-#define MemoryEnclaveImageInformation 0x9
-#define MemoryBasicInformationCapped 0xA
-#endif
 
 typedef struct _MEMORY_WORKING_SET_BLOCK
 {
@@ -416,13 +341,11 @@ typedef struct _SECTION_INTERNAL_IMAGE_INFORMATION
     };
 } SECTION_INTERNAL_IMAGE_INFORMATION, *PSECTION_INTERNAL_IMAGE_INFORMATION;
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 typedef enum _SECTION_INHERIT
 {
     ViewShare = 1,
     ViewUnmap = 2
 } SECTION_INHERIT;
-#endif
 
 #define SEC_BASED 0x200000
 #define SEC_NO_CHANGE 0x400000
@@ -437,8 +360,6 @@ typedef enum _SECTION_INHERIT
 #define MEM_EXECUTE_OPTION_VALID_FLAGS 0x3f
 
 // Virtual memory
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -507,10 +428,8 @@ NtQueryVirtualMemory(
     _Out_opt_ PSIZE_T ReturnLength
     );
 
-#endif
 
 // begin_private
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 typedef enum _VIRTUAL_MEMORY_INFORMATION_CLASS
 {
     VmPrefetchInformation, // ULONG
@@ -532,10 +451,7 @@ typedef struct _CFG_CALL_TARGET_LIST_INFORMATION
     PULONG NumberOfEntriesProcessed;
     PCFG_CALL_TARGET_INFO CallTargetInfo;
 } CFG_CALL_TARGET_LIST_INFORMATION, *PCFG_CALL_TARGET_LIST_INFORMATION;
-#endif
 // end_private
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 #if (PHNT_VERSION >= PHNT_THRESHOLD)
 
@@ -573,11 +489,7 @@ NtUnlockVirtualMemory(
     _In_ ULONG MapType
     );
 
-#endif
-
 // Sections
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -662,8 +574,6 @@ NtAreMappedFilesTheSame(
     _In_ PVOID File1MappedAsAnImage,
     _In_ PVOID File2MappedAsFile
     );
-
-#endif
 
 // Partitions
 
@@ -771,8 +681,6 @@ typedef struct _MEMORY_PARTITION_MEMORY_EVENTS_INFORMATION
     HANDLE MaximumCommitCondition; // \KernelObjects\MaximumCommitCondition
 } MEMORY_PARTITION_MEMORY_EVENTS_INFORMATION, *PMEMORY_PARTITION_MEMORY_EVENTS_INFORMATION;
 
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
-
 #if (PHNT_VERSION >= PHNT_THRESHOLD)
 
 NTSYSCALLAPI
@@ -805,11 +713,7 @@ NtManagePartition(
 
 #endif
 
-#endif
-
 // User physical pages
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -847,11 +751,7 @@ NtFreeUserPhysicalPages(
     _In_reads_(*NumberOfPages) PULONG_PTR UserPfnArray
     );
 
-#endif
-
 // Sessions
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 #if (PHNT_VERSION >= PHNT_VISTA)
 NTSYSCALLAPI
@@ -864,11 +764,7 @@ NtOpenSession(
     );
 #endif
 
-#endif
-
 // Misc.
-
-#if (PHNT_MODE != PHNT_MODE_KERNEL)
 
 NTSYSCALLAPI
 NTSTATUS
@@ -917,7 +813,5 @@ NTAPI
 NtFlushWriteBuffer(
     VOID
     );
-
-#endif
 
 #endif
