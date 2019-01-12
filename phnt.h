@@ -61,6 +61,12 @@
 
 //#define PHNT_NO_INLINE_INIT_STRING
 
+#if (PHNT_MODE != PHNT_MODE_KERNEL)
+#pragma comment(lib,"ntdll.lib")
+#pragma comment(lib,"samlib.lib")
+#pragma comment(lib,"winsta.lib")
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
