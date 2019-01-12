@@ -49,10 +49,6 @@
 #define PHNT_VERSION PHNT_WIN7
 #endif
 
-// Options
-
-//#define PHNT_NO_INLINE_INIT_STRING
-
 #pragma comment(lib,"ntdll.lib")
 #pragma comment(lib,"samlib.lib")
 #pragma comment(lib,"winsta.lib")

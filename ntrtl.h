@@ -1236,28 +1236,13 @@ RtlWakeAddressSingle(
 
 // Strings
 
-#ifndef PHNT_NO_INLINE_INIT_STRING
-FORCEINLINE VOID RtlInitString(
-    _Out_ PSTRING DestinationString,
-    _In_opt_ PSTR SourceString
-    )
-{
-    if (SourceString)
-        DestinationString->MaximumLength = (DestinationString->Length = (USHORT)strlen(SourceString)) + 1;
-    else
-        DestinationString->MaximumLength = DestinationString->Length = 0;
-
-    DestinationString->Buffer = SourceString;
-}
-#else
 NTSYSAPI
 VOID
 NTAPI
 RtlInitString(
     _Out_ PSTRING DestinationString,
     _In_opt_ PSTR SourceString
-    );
-#endif
+);
 
 #if (PHNT_VERSION >= PHNT_THRESHOLD)
 NTSYSAPI
@@ -1269,28 +1254,13 @@ RtlInitStringEx(
     );
 #endif
 
-#ifndef PHNT_NO_INLINE_INIT_STRING
-FORCEINLINE VOID RtlInitAnsiString(
-    _Out_ PANSI_STRING DestinationString,
-    _In_opt_ PSTR SourceString
-    )
-{
-    if (SourceString)
-        DestinationString->MaximumLength = (DestinationString->Length = (USHORT)strlen(SourceString)) + 1;
-    else
-        DestinationString->MaximumLength = DestinationString->Length = 0;
-
-    DestinationString->Buffer = SourceString;
-}
-#else
 NTSYSAPI
 VOID
 NTAPI
 RtlInitAnsiString(
     _Out_ PANSI_STRING DestinationString,
     _In_opt_ PSTR SourceString
-    );
-#endif
+);
 
 #if (PHNT_VERSION >= PHNT_WS03)
 NTSYSAPI
@@ -1408,28 +1378,13 @@ RtlInitEmptyUnicodeString(
     DestinationString->Length = 0;
 }
 
-#ifndef PHNT_NO_INLINE_INIT_STRING
-FORCEINLINE VOID RtlInitUnicodeString(
-    _Out_ PUNICODE_STRING DestinationString,
-    _In_opt_ PWSTR SourceString
-    )
-{
-    if (SourceString)
-        DestinationString->MaximumLength = (DestinationString->Length = (USHORT)(wcslen(SourceString) * sizeof(WCHAR))) + sizeof(WCHAR);
-    else
-        DestinationString->MaximumLength = DestinationString->Length = 0;
-
-    DestinationString->Buffer = SourceString;
-}
-#else
 NTSYSAPI
 VOID
 NTAPI
 RtlInitUnicodeString(
     _Out_ PUNICODE_STRING DestinationString,
     _In_opt_ PWSTR SourceString
-    );
-#endif
+);
 
 NTSYSAPI
 NTSTATUS
