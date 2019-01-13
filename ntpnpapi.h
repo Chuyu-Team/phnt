@@ -152,3 +152,4 @@ NtReplacePartitionUnit(
     _In_ ULONG Flags
     );
 #endif
+ 

@@ -89,3 +89,4 @@ typedef DWORD (WINAPI *PQUERY_TAG_INFORMATION)(
     _In_ TAG_INFO_LEVEL eInfoLevel,
     _Inout_ PVOID pTagInfo
     );
+ 

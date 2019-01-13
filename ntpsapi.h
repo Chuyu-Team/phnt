@@ -1894,3 +1894,4 @@ NtAllocateReserveObject(
     _In_ MEMORY_RESERVE_TYPE Type
     );
 #endif
+ 

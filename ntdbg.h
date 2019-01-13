@@ -359,3 +359,4 @@ EtwEventRegister(
     _In_opt_ PVOID CallbackContext,
     _Out_ PREGHANDLE RegHandle
     );
+ 

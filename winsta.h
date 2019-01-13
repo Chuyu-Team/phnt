@@ -1051,3 +1051,4 @@ WINAPI
 _WinStationWaitForConnect(
     VOID
     );
+ 

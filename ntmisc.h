@@ -58,3 +58,4 @@ NtTraceControl(
     _Out_ PULONG ReturnLength
     );
 #endif
+ 

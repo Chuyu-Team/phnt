@@ -646,3 +646,4 @@ NtThawRegistry(
     VOID
     );
 #endif
+ 

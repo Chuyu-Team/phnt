@@ -1728,3 +1728,4 @@ SamPerformGenericOperation(
     _In_ PSAM_GENERIC_OPERATION_INPUT OperationIn,
     _Out_ PSAM_GENERIC_OPERATION_OUTPUT *OperationOut
     );
+ 

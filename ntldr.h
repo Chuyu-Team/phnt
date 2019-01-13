@@ -906,3 +906,4 @@ NTAPI
 LdrControlFlowGuardEnforced(
     VOID
     );
+ 

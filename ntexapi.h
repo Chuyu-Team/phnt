@@ -4084,3 +4084,4 @@ NtDrawText(
     _In_ PUNICODE_STRING Text
     );
 #endif
+ 

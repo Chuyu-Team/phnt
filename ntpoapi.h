@@ -175,3 +175,4 @@ NTAPI
 NtIsSystemResumeAutomatic(
     VOID
     );
+ 
