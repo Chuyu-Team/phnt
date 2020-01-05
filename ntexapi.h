@@ -1557,7 +1557,7 @@ typedef struct _SYSTEM_THREAD_INFORMATION
     KWAIT_REASON WaitReason;
 } SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;
 
-typedef struct _TEB *PTEB;
+typedef struct _TEB TEB, *PTEB;
 
 // private
 typedef struct _SYSTEM_EXTENDED_THREAD_INFORMATION

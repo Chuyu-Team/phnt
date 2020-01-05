@@ -248,7 +248,7 @@ typedef struct _TEB_ACTIVE_FRAME
     PTEB_ACTIVE_FRAME_CONTEXT Context;
 } TEB_ACTIVE_FRAME, *PTEB_ACTIVE_FRAME;
 
-typedef struct _TEB
+struct _TEB
 {
     NT_TIB NtTib;
 
@@ -415,5 +415,5 @@ typedef struct _TEB
     PVOID ReservedForWdf;
     ULONGLONG ReservedForCrt;
     GUID EffectiveContainerId;
-} TEB, *PTEB;
+};
  
