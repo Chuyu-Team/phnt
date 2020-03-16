@@ -460,6 +460,9 @@ NtSetInformationVirtualMemory(
 
 #endif
 
+#define MAP_PROCESS 1
+#define MAP_SYSTEM 2
+
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -821,4 +824,66 @@ NTAPI
 NtFlushWriteBuffer(
     VOID
     );
- 
+
+// Enclave support
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtCreateEnclave(
+    _In_ HANDLE ProcessHandle,
+    _Inout_ PVOID* BaseAddress,
+    _In_ ULONG_PTR ZeroBits,
+    _In_ SIZE_T Size,
+    _In_ SIZE_T InitialCommitment,
+    _In_ ULONG EnclaveType,
+    _In_reads_bytes_(EnclaveInformationLength) PVOID EnclaveInformation,
+    _In_ ULONG EnclaveInformationLength,
+    _Out_opt_ PULONG EnclaveError
+    );
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtLoadEnclaveData(
+    _In_ HANDLE ProcessHandle,
+    _In_ PVOID BaseAddress,
+    _In_reads_bytes_(BufferSize) PVOID Buffer,
+    _In_ SIZE_T BufferSize,
+    _In_ ULONG Protect,
+    _In_reads_bytes_(PageInformationLength) PVOID PageInformation,
+    _In_ ULONG PageInformationLength,
+    _Out_opt_ PSIZE_T NumberOfBytesWritten,
+    _Out_opt_ PULONG EnclaveError
+    );
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtInitializeEnclave(
+    _In_ HANDLE ProcessHandle,
+    _In_ PVOID BaseAddress,
+    _In_reads_bytes_(EnclaveInformationLength) PVOID EnclaveInformation,
+    _In_ ULONG EnclaveInformationLength,
+    _Out_opt_ PULONG EnclaveError
+    );
+
+// rev
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtTerminateEnclave(
+    _In_ PVOID BaseAddress,
+    _In_ BOOLEAN WaitForThread
+    );
+
+// rev
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtCallEnclave(
+    _In_ PENCLAVE_ROUTINE Routine,
+    _In_ PVOID Parameter,
+    _In_ BOOLEAN WaitForThread,
+    _Out_opt_ PVOID *ReturnValue
+    );
