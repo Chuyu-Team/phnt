@@ -141,6 +141,9 @@
 #define FILE_PIPE_CLIENT_END 0x00000000
 #define FILE_PIPE_SERVER_END 0x00000001
 
+// Win32 pipe instance limit (0xff)
+#define FILE_PIPE_UNLIMITED_INSTANCES 0xffffffff 
+
 // Mailslot values
 
 #define MAILSLOT_SIZE_AUTO 0
@@ -213,7 +216,7 @@ typedef enum _FILE_INFORMATION_CLASS
     FileShortNameInformation, // FILE_NAME_INFORMATION // 40
     FileIoCompletionNotificationInformation, // FILE_IO_COMPLETION_NOTIFICATION_INFORMATION // since VISTA
     FileIoStatusBlockRangeInformation, // FILE_IOSTATUSBLOCK_RANGE_INFORMATION
-    FileIoPriorityHintInformation, // FILE_IO_PRIORITY_HINT_INFORMATION
+    FileIoPriorityHintInformation, // FILE_IO_PRIORITY_HINT_INFORMATION, FILE_IO_PRIORITY_HINT_INFORMATION_EX
     FileSfioReserveInformation, // FILE_SFIO_RESERVE_INFORMATION
     FileSfioVolumeInformation, // FILE_SFIO_VOLUME_INFORMATION
     FileHardLinkInformation, // FILE_LINKS_INFORMATION
@@ -526,7 +529,7 @@ typedef struct _FILE_REPARSE_POINT_INFORMATION
 typedef struct _FILE_LINK_ENTRY_INFORMATION
 {
     ULONG NextEntryOffset;
-    LONGLONG ParentFileId;
+    LONGLONG ParentFileId; // LARGE_INTEGER
     ULONG FileNameLength;
     WCHAR FileName[1];
 } FILE_LINK_ENTRY_INFORMATION, *PFILE_LINK_ENTRY_INFORMATION;
@@ -579,7 +582,7 @@ typedef enum _IO_PRIORITY_HINT
     MaxIoPriorityTypes
 } IO_PRIORITY_HINT;
 
-typedef struct _FILE_IO_PRIORITY_HINT_INFORMATION
+typedef DECLSPEC_ALIGN(8) struct _FILE_IO_PRIORITY_HINT_INFORMATION
 {
     IO_PRIORITY_HINT PriorityHint;
 } FILE_IO_PRIORITY_HINT_INFORMATION, *PFILE_IO_PRIORITY_HINT_INFORMATION;
@@ -917,7 +920,7 @@ typedef struct _FILE_ID_GLOBAL_TX_DIR_INFORMATION
 typedef struct _FILE_OBJECTID_INFORMATION
 {
     LONGLONG FileReference;
-    UCHAR ObjectId[16];
+    UCHAR ObjectId[16]; // GUID
     union
     {
         struct
@@ -1281,7 +1284,7 @@ NtQueryDirectoryFileEx(
     _In_opt_ PIO_APC_ROUTINE ApcRoutine,
     _In_opt_ PVOID ApcContext,
     _Out_ PIO_STATUS_BLOCK IoStatusBlock,
-    _Out_ PVOID FileInformation,
+    _Out_writes_bytes_(Length) PVOID FileInformation,
     _In_ ULONG Length,
     _In_ FILE_INFORMATION_CLASS FileInformationClass,
     _In_ ULONG QueryFlags,
@@ -1740,6 +1743,19 @@ typedef enum _IO_SESSION_STATE
     IoSessionStateMax
 } IO_SESSION_STATE;
 
+// Sessions
+
+#if (NTDDI_VERSION >= NTDDI_VISTA)
+NTSYSCALLAPI
+NTSTATUS
+NTAPI
+NtOpenSession(
+    _Out_ PHANDLE SessionHandle,
+    _In_ ACCESS_MASK DesiredAccess,
+    _In_ POBJECT_ATTRIBUTES ObjectAttributes
+    );
+#endif
+
 #if (NTDDI_VERSION >= NTDDI_WIN7)
 NTSYSCALLAPI
 NTSTATUS
@@ -1875,6 +1891,10 @@ typedef struct _REPARSE_DATA_BUFFER
 #define FSCTL_PIPE_GET_HANDLE_ATTRIBUTE     CTL_CODE(FILE_DEVICE_NAMED_PIPE, 14, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define FSCTL_PIPE_SET_HANDLE_ATTRIBUTE     CTL_CODE(FILE_DEVICE_NAMED_PIPE, 15, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define FSCTL_PIPE_FLUSH                    CTL_CODE(FILE_DEVICE_NAMED_PIPE, 16, METHOD_BUFFERED, FILE_WRITE_DATA)
+#define FSCTL_PIPE_DISABLE_IMPERSONATE      CTL_CODE(FILE_DEVICE_NAMED_PIPE, 17, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define FSCTL_PIPE_SILO_ARRIVAL             CTL_CODE(FILE_DEVICE_NAMED_PIPE, 18, METHOD_BUFFERED, FILE_WRITE_DATA)
+#define FSCTL_PIPE_CREATE_SYMLINK           CTL_CODE(FILE_DEVICE_NAMED_PIPE, 19, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
+#define FSCTL_PIPE_DELETE_SYMLINK           CTL_CODE(FILE_DEVICE_NAMED_PIPE, 20, METHOD_BUFFERED, FILE_SPECIAL_ACCESS)
 
 #define FSCTL_PIPE_INTERNAL_READ            CTL_CODE(FILE_DEVICE_NAMED_PIPE, 2045, METHOD_BUFFERED, FILE_READ_DATA)
 #define FSCTL_PIPE_INTERNAL_WRITE           CTL_CODE(FILE_DEVICE_NAMED_PIPE, 2046, METHOD_BUFFERED, FILE_WRITE_DATA)
@@ -1949,6 +1969,55 @@ typedef struct _FILE_PIPE_CLIENT_PROCESS_BUFFER_EX
     USHORT ClientComputerNameLength; // in bytes
     WCHAR ClientComputerBuffer[FILE_PIPE_COMPUTER_NAME_LENGTH + 1]; // null-terminated
 } FILE_PIPE_CLIENT_PROCESS_BUFFER_EX, *PFILE_PIPE_CLIENT_PROCESS_BUFFER_EX;
+
+// Control structure for FSCTL_PIPE_SILO_ARRIVAL
+
+typedef struct _FILE_PIPE_SILO_ARRIVAL_INPUT
+{
+    HANDLE JobHandle;
+} FILE_PIPE_SILO_ARRIVAL_INPUT, *PFILE_PIPE_SILO_ARRIVAL_INPUT;
+
+//
+// Flags for create symlink
+//
+
+//
+// A global symlink will cause resolution of the symlink's target to occur in
+// the host silo (i.e. not in any current silo).  For example, if there is a
+// symlink at \Device\Silos\37\Device\NamedPipe\symlink then the target will be
+// resolved as \Device\NamedPipe\target instead of \Device\Silos\37\Device\NamedPipe\target
+//
+#define FILE_PIPE_SYMLINK_FLAG_GLOBAL   0x1
+
+//
+// A relative symlink will cause resolution of the symlink's target to occur relative
+// to the root of the named pipe file system.  For example, if there is a symlink at
+// \Device\NamedPipe\symlink that has a target called "target", then the target will
+// be resolved as \Device\NamedPipe\target
+//
+#define FILE_PIPE_SYMLINK_FLAG_RELATIVE 0x2
+
+#define FILE_PIPE_SYMLINK_VALID_FLAGS \
+    (FILE_PIPE_SYMLINK_FLAG_GLOBAL | FILE_PIPE_SYMLINK_FLAG_RELATIVE)
+
+// Control structure for FSCTL_PIPE_CREATE_SYMLINK
+
+typedef struct _FILE_PIPE_CREATE_SYMLINK_INPUT
+{
+    USHORT NameOffset;
+    USHORT NameLength;
+    USHORT SubstituteNameOffset;
+    USHORT SubstituteNameLength;
+    ULONG Flags;
+} FILE_PIPE_CREATE_SYMLINK_INPUT, *PFILE_PIPE_CREATE_SYMLINK_INPUT;
+
+// Control structure for FSCTL_PIPE_DELETE_SYMLINK
+
+typedef struct _FILE_PIPE_DELETE_SYMLINK_INPUT
+{
+    USHORT NameOffset;
+    USHORT NameLength;
+} FILE_PIPE_DELETE_SYMLINK_INPUT, *PFILE_PIPE_DELETE_SYMLINK_INPUT;
 
 // Mailslot FS control definitions
 

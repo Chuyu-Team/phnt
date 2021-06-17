@@ -1,5 +1,22 @@
 // This header file provides access to Win32, plus NTSTATUS values and some access mask values.
 
+#ifndef __cplusplus
+#ifndef CINTERFACE
+#define CINTERFACE
+#endif
+
+#ifndef COBJMACROS
+#define COBJMACROS
+#endif
+#endif
+
+#ifndef __cplusplus
+// This is needed to workaround C17 preprocessor errors when using legacy versions of the Windows SDK. (dmex)
+#ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
+#define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
+#endif
+#endif
+
 #include <windows.h>
 #include <windowsx.h>
 #include <winioctl.h>
@@ -71,6 +88,7 @@
 #undef STATUS_INTERRUPTED
 #undef STATUS_THREAD_NOT_RUNNING
 
+#undef WIN32_NO_STATUS
 #include <ntstatus.h>
 
 typedef double DOUBLE;

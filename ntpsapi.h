@@ -20,9 +20,15 @@ typedef ULONG GDI_HANDLE_BUFFER[GDI_HANDLE_BUFFER_SIZE];
 typedef ULONG GDI_HANDLE_BUFFER32[GDI_HANDLE_BUFFER_SIZE32];
 typedef ULONG GDI_HANDLE_BUFFER64[GDI_HANDLE_BUFFER_SIZE64];
 
-//#define FLS_MAXIMUM_AVAILABLE 128
+#ifndef FLS_MAXIMUM_AVAILABLE
+#define FLS_MAXIMUM_AVAILABLE 128
+#endif
+#ifndef TLS_MINIMUM_AVAILABLE
 #define TLS_MINIMUM_AVAILABLE 64
+#endif
+#ifndef TLS_EXPANSION_SLOTS
 #define TLS_EXPANSION_SLOTS 1024
+#endif
 
 // symbols
 typedef struct _PEB_LDR_DATA
@@ -73,13 +79,13 @@ typedef enum _PROCESSINFOCLASS
     ProcessLdtInformation, // qs: PROCESS_LDT_INFORMATION // 10
     ProcessLdtSize, // s: PROCESS_LDT_SIZE
     ProcessDefaultHardErrorMode, // qs: ULONG
-    ProcessIoPortHandlers, // (kernel-mode only)
+    ProcessIoPortHandlers, // (kernel-mode only) // PROCESS_IO_PORT_HANDLER_INFORMATION
     ProcessPooledUsageAndLimits, // q: POOLED_USAGE_AND_LIMITS
     ProcessWorkingSetWatch, // q: PROCESS_WS_WATCH_INFORMATION[]; s: void
-    ProcessUserModeIOPL,
+    ProcessUserModeIOPL, // qs: ULONG (requires SeTcbPrivilege)
     ProcessEnableAlignmentFaultFixup, // s: BOOLEAN
     ProcessPriorityClass, // qs: PROCESS_PRIORITY_CLASS
-    ProcessWx86Information,
+    ProcessWx86Information, // qs: ULONG (requires SeTcbPrivilege) (VdmAllowed)
     ProcessHandleCount, // q: ULONG, PROCESS_HANDLE_INFORMATION // 20
     ProcessAffinityMask, // s: KAFFINITY
     ProcessPriorityBoost, // qs: ULONG
@@ -95,7 +101,7 @@ typedef enum _PROCESSINFOCLASS
     ProcessHandleTracing, // q: PROCESS_HANDLE_TRACING_QUERY; s: size 0 disables, otherwise enables
     ProcessIoPriority, // qs: IO_PRIORITY_HINT
     ProcessExecuteFlags, // qs: ULONG
-    ProcessResourceManagement, // ProcessTlsInformation // PROCESS_TLS_INFORMATION
+    ProcessTlsInformation, // PROCESS_TLS_INFORMATION // ProcessResourceManagement 
     ProcessCookie, // q: ULONG
     ProcessImageInformation, // q: SECTION_IMAGE_INFORMATION
     ProcessCycleTime, // q: PROCESS_CYCLE_TIME_INFORMATION // since VISTA
@@ -119,27 +125,27 @@ typedef enum _PROCESSINFOCLASS
     ProcessRevokeFileHandles, // s: PROCESS_REVOKE_FILE_HANDLES_INFORMATION
     ProcessWorkingSetControl, // s: PROCESS_WORKING_SET_CONTROL
     ProcessHandleTable, // q: ULONG[] // since WINBLUE
-    ProcessCheckStackExtentsMode,
+    ProcessCheckStackExtentsMode, // qs: ULONG // KPROCESS->CheckStackExtents (CFG)
     ProcessCommandLineInformation, // q: UNICODE_STRING // 60
     ProcessProtectionInformation, // q: PS_PROTECTION
     ProcessMemoryExhaustion, // PROCESS_MEMORY_EXHAUSTION_INFO // since THRESHOLD
     ProcessFaultInformation, // PROCESS_FAULT_INFORMATION
-    ProcessTelemetryIdInformation, // PROCESS_TELEMETRY_ID_INFORMATION
+    ProcessTelemetryIdInformation, // q: PROCESS_TELEMETRY_ID_INFORMATION
     ProcessCommitReleaseInformation, // PROCESS_COMMIT_RELEASE_INFORMATION
     ProcessDefaultCpuSetsInformation,
     ProcessAllowedCpuSetsInformation,
     ProcessSubsystemProcess,
-    ProcessJobMemoryInformation, // PROCESS_JOB_MEMORY_INFO
+    ProcessJobMemoryInformation, // q: PROCESS_JOB_MEMORY_INFO
     ProcessInPrivate, // since THRESHOLD2 // 70
     ProcessRaiseUMExceptionOnInvalidHandleClose, // qs: ULONG; s: 0 disables, otherwise enables
     ProcessIumChallengeResponse,
-    ProcessChildProcessInformation, // PROCESS_CHILD_PROCESS_INFORMATION
-    ProcessHighGraphicsPriorityInformation,
+    ProcessChildProcessInformation, // q: PROCESS_CHILD_PROCESS_INFORMATION
+    ProcessHighGraphicsPriorityInformation, // qs: BOOLEAN (requires SeTcbPrivilege)
     ProcessSubsystemInformation, // q: SUBSYSTEM_INFORMATION_TYPE // since REDSTONE2
-    ProcessEnergyValues, // PROCESS_ENERGY_VALUES, PROCESS_EXTENDED_ENERGY_VALUES
-    ProcessActivityThrottleState, // PROCESS_ACTIVITY_THROTTLE_STATE
-    ProcessActivityThrottlePolicy, // PROCESS_ACTIVITY_THROTTLE_POLICY
-    ProcessWin32kSyscallFilterInformation,
+    ProcessEnergyValues, // q: PROCESS_ENERGY_VALUES, PROCESS_EXTENDED_ENERGY_VALUES
+    ProcessPowerThrottlingState, // qs: POWER_THROTTLING_PROCESS_STATE
+    ProcessReserved3Information, // ProcessActivityThrottlePolicy // PROCESS_ACTIVITY_THROTTLE_POLICY
+    ProcessWin32kSyscallFilterInformation, // q: WIN32K_SYSCALL_FILTER
     ProcessDisableSystemAllowedCpuSets, // 80
     ProcessWakeInformation, // PROCESS_WAKE_INFORMATION
     ProcessEnergyTrackingState, // PROCESS_ENERGY_TRACKING_STATE
@@ -148,7 +154,7 @@ typedef enum _PROCESSINFOCLASS
     ProcessTelemetryCoverage,
     ProcessEnclaveInformation,
     ProcessEnableReadWriteVmLogging, // PROCESS_READWRITEVM_LOGGING_INFORMATION
-    ProcessUptimeInformation, // PROCESS_UPTIME_INFORMATION
+    ProcessUptimeInformation, // q: PROCESS_UPTIME_INFORMATION
     ProcessImageSection, // q: HANDLE
     ProcessDebugAuthInformation, // since REDSTONE4 // 90
     ProcessSystemResourceManagement, // PROCESS_SYSTEM_RESOURCE_MANAGEMENT
@@ -160,6 +166,9 @@ typedef enum _PROCESSINFOCLASS
     ProcessLeapSecondInformation, // PROCESS_LEAP_SECOND_INFORMATION
     ProcessFiberShadowStackAllocation, // PROCESS_FIBER_SHADOW_STACK_ALLOCATION_INFORMATION // since 19H1
     ProcessFreeFiberShadowStackAllocation, // PROCESS_FREE_FIBER_SHADOW_STACK_ALLOCATION_INFORMATION
+    ProcessAltSystemCallInformation, // qs: BOOLEAN (kernel-mode only) // INT2E // since 20H1 // 100
+    ProcessDynamicEHContinuationTargets, // PROCESS_DYNAMIC_EH_CONTINUATION_TARGETS_INFORMATION
+    ProcessDynamicEnforcedCetCompatibleRanges, // PROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGE_INFORMATION // since 20H2
     MaxProcessInfoClass
 } PROCESSINFOCLASS;
 
@@ -194,27 +203,27 @@ typedef enum _THREADINFOCLASS
     ThreadTebInformation, // q: THREAD_TEB_INFORMATION (requires THREAD_GET_CONTEXT + THREAD_SET_CONTEXT)
     ThreadCSwitchMon,
     ThreadCSwitchPmu,
-    ThreadWow64Context, // q: WOW64_CONTEXT
+    ThreadWow64Context, // qs: WOW64_CONTEXT
     ThreadGroupInformation, // q: GROUP_AFFINITY // 30
     ThreadUmsInformation, // q: THREAD_UMS_INFORMATION
-    ThreadCounterProfiling,
+    ThreadCounterProfiling, // sizeof(1) 
     ThreadIdealProcessorEx, // q: PROCESSOR_NUMBER
-    ThreadCpuAccountingInformation, // since WIN8
-    ThreadSuspendCount, // since WINBLUE
+    ThreadCpuAccountingInformation, // sizeof(1) // since WIN8
+    ThreadSuspendCount, // q: ULONG // since WINBLUE
     ThreadHeterogeneousCpuPolicy, // q: KHETERO_CPU_POLICY // since THRESHOLD
     ThreadContainerId, // q: GUID
     ThreadNameInformation, // qs: THREAD_NAME_INFORMATION
     ThreadSelectedCpuSets,
     ThreadSystemThreadInformation, // q: SYSTEM_THREAD_INFORMATION // 40
-    ThreadActualGroupAffinity, // since THRESHOLD2
-    ThreadDynamicCodePolicyInfo,
+    ThreadActualGroupAffinity, // sizeof(16) // since THRESHOLD2
+    ThreadDynamicCodePolicyInfo, // sizeof(4)
     ThreadExplicitCaseSensitivity, // qs: ULONG; s: 0 disables, otherwise enables
-    ThreadWorkOnBehalfTicket,
+    ThreadWorkOnBehalfTicket, // RTL_WORK_ON_BEHALF_TICKET_EX
     ThreadSubsystemInformation, // q: SUBSYSTEM_INFORMATION_TYPE // since REDSTONE2
     ThreadDbgkWerReportActive,
     ThreadAttachContainer,
     ThreadManageWritesToExecutableMemory, // MANAGE_WRITES_TO_EXECUTABLE_MEMORY // since REDSTONE3
-    ThreadPowerThrottlingState, // THREAD_POWER_THROTTLING_STATE
+    ThreadPowerThrottlingState, // POWER_THROTTLING_THREAD_STATE
     ThreadWorkloadClass, // THREAD_WORKLOAD_CLASS // since REDSTONE5 // 50
     MaxThreadInfoClass
 } THREADINFOCLASS;
@@ -578,6 +587,26 @@ typedef struct _PROCESS_HANDLE_SNAPSHOT_INFORMATION
     PROCESS_HANDLE_TABLE_ENTRY_INFO Handles[1];
 } PROCESS_HANDLE_SNAPSHOT_INFORMATION, *PPROCESS_HANDLE_SNAPSHOT_INFORMATION;
 
+// TODO: remove after switch to 21H1 SDK
+typedef struct _PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY_INT {
+    union {
+        DWORD Flags;
+        struct {
+            DWORD EnableUserShadowStack : 1;
+            DWORD AuditUserShadowStack : 1;
+            DWORD SetContextIpValidation : 1;
+            DWORD AuditSetContextIpValidation : 1;
+            DWORD EnableUserShadowStackStrictMode : 1;
+            DWORD BlockNonCetBinaries : 1;
+            DWORD BlockNonCetBinariesNonEhcont : 1;
+            DWORD AuditBlockNonCetBinaries : 1;
+            DWORD CetDynamicApisOutOfProcOnly : 1;
+            DWORD ReservedFlags : 23;
+
+        } DUMMYSTRUCTNAME;
+    } DUMMYUNIONNAME;
+} PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY_INT, * PPROCESS_MITIGATION_USER_SHADOW_STACK_POLICY_INT;
+
 // private
 typedef struct _PROCESS_MITIGATION_POLICY_INFORMATION
 {
@@ -597,6 +626,7 @@ typedef struct _PROCESS_MITIGATION_POLICY_INFORMATION
         PROCESS_MITIGATION_PAYLOAD_RESTRICTION_POLICY PayloadRestrictionPolicy;
         PROCESS_MITIGATION_CHILD_PROCESS_POLICY ChildProcessPolicy;
         PROCESS_MITIGATION_SIDE_CHANNEL_ISOLATION_POLICY SideChannelIsolationPolicy;
+        PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY_INT UserShadowStackPolicy;
     };
 } PROCESS_MITIGATION_POLICY_INFORMATION, *PPROCESS_MITIGATION_POLICY_INFORMATION;
 
@@ -735,10 +765,27 @@ typedef struct _PROCESS_JOB_MEMORY_INFO
 typedef struct _PROCESS_CHILD_PROCESS_INFORMATION
 {
     BOOLEAN ProhibitChildProcesses;
-    //BOOLEAN EnableAutomaticOverride; // REDSTONE2
     BOOLEAN AlwaysAllowSecureChildProcess; // REDSTONE3
     BOOLEAN AuditProhibitChildProcesses;
 } PROCESS_CHILD_PROCESS_INFORMATION, *PPROCESS_CHILD_PROCESS_INFORMATION;
+
+#define POWER_THROTTLING_PROCESS_CURRENT_VERSION 1
+#define POWER_THROTTLING_PROCESS_EXECUTION_SPEED 0x1
+#define POWER_THROTTLING_PROCESS_DELAYTIMERS 0x2
+#define POWER_THROTTLING_PROCESS_VALID_FLAGS ((POWER_THROTTLING_PROCESS_EXECUTION_SPEED | POWER_THROTTLING_PROCESS_DELAYTIMERS))
+
+typedef struct _POWER_THROTTLING_PROCESS_STATE
+{
+    ULONG Version;
+    ULONG ControlMask;
+    ULONG StateMask;
+} POWER_THROTTLING_PROCESS_STATE, *PPOWER_THROTTLING_PROCESS_STATE;
+
+typedef struct _WIN32K_SYSCALL_FILTER
+{
+    ULONG FilterState;
+    ULONG FilterSet;
+} WIN32K_SYSCALL_FILTER, *PWIN32K_SYSCALL_FILTER;
 
 typedef struct _PROCESS_WAKE_INFORMATION
 {
@@ -764,6 +811,17 @@ typedef struct _MANAGE_WRITES_TO_EXECUTABLE_MEMORY
     ULONG Spare : 22;
     PVOID KernelWriteToExecutableSignal; // 19H1
 } MANAGE_WRITES_TO_EXECUTABLE_MEMORY, *PMANAGE_WRITES_TO_EXECUTABLE_MEMORY;
+
+#define POWER_THROTTLING_THREAD_CURRENT_VERSION 1
+#define POWER_THROTTLING_THREAD_EXECUTION_SPEED 0x1
+#define POWER_THROTTLING_THREAD_VALID_FLAGS (POWER_THROTTLING_THREAD_EXECUTION_SPEED)
+
+typedef struct _POWER_THROTTLING_THREAD_STATE
+{
+    ULONG Version;
+    ULONG ControlMask;
+    ULONG StateMask;
+} POWER_THROTTLING_THREAD_STATE, *PPOWER_THROTTLING_THREAD_STATE;
 
 #define PROCESS_READWRITEVM_LOGGING_ENABLE_READVM 1
 #define PROCESS_READWRITEVM_LOGGING_ENABLE_WRITEVM 2
@@ -856,6 +914,23 @@ typedef struct _PROCESS_FREE_FIBER_SHADOW_STACK_ALLOCATION_INFORMATION
 {
     PVOID Ssp;
 } PROCESS_FREE_FIBER_SHADOW_STACK_ALLOCATION_INFORMATION, *PPROCESS_FREE_FIBER_SHADOW_STACK_ALLOCATION_INFORMATION;
+
+//// private
+//typedef struct _PROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGE
+//{
+//    ULONG_PTR BaseAddress;
+//    SIZE_T Size;
+//    ULONG Flags;
+//} PROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGE, *PPROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGE;
+//
+//// private
+//typedef struct _PROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGES_INFORMATION
+//{
+//    USHORT NumberOfRanges;
+//    USHORT Reserved;
+//    ULONG Reserved2;
+//    PPROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGE Ranges;
+//} PROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGES_INFORMATION, *PPROCESS_DYNAMIC_ENFORCED_ADDRESS_RANGES_INFORMATION;
 
 // end_private
 
@@ -1000,6 +1075,29 @@ typedef struct _THREAD_NAME_INFORMATION
 } THREAD_NAME_INFORMATION, *PTHREAD_NAME_INFORMATION;
 
 // private
+typedef struct _ALPC_WORK_ON_BEHALF_TICKET
+{
+    ULONG ThreadId;
+    ULONG ThreadCreationTimeLow;
+} ALPC_WORK_ON_BEHALF_TICKET, *PALPC_WORK_ON_BEHALF_TICKET;
+
+// private
+typedef struct _RTL_WORK_ON_BEHALF_TICKET_EX
+{
+    ALPC_WORK_ON_BEHALF_TICKET Ticket;
+    union
+    {
+        ULONG Flags;
+        struct
+        {
+            ULONG CurrentThread : 1;
+            ULONG Reserved1 : 31;
+        };
+    };
+    ULONG Reserved2;
+} RTL_WORK_ON_BEHALF_TICKET_EX, *PRTL_WORK_ON_BEHALF_TICKET_EX;
+
+// private
 typedef enum _SUBSYSTEM_INFORMATION_TYPE 
 {
     SubsystemInformationTypeWin32,
@@ -1093,9 +1191,10 @@ NtResumeProcess(
 #define NtCurrentPeb() (NtCurrentTeb()->ProcessEnvironmentBlock)
 
 // Windows 8 and above
-#define NtCurrentProcessToken() ((HANDLE)(LONG_PTR)-4)
-#define NtCurrentThreadToken() ((HANDLE)(LONG_PTR)-5)
-#define NtCurrentEffectiveToken() ((HANDLE)(LONG_PTR)-6)
+#define NtCurrentProcessToken() ((HANDLE)(LONG_PTR)-4) // NtOpenProcessToken(NtCurrentProcess())
+#define NtCurrentThreadToken() ((HANDLE)(LONG_PTR)-5) // NtOpenThreadToken(NtCurrentThread())
+#define NtCurrentThreadEffectiveToken() ((HANDLE)(LONG_PTR)-6) // NtOpenThreadToken(NtCurrentThread()) + NtOpenProcessToken(NtCurrentProcess())
+
 #define NtCurrentSilo() ((HANDLE)(LONG_PTR)-1)
 
 // Not NT, but useful.
@@ -1114,6 +1213,9 @@ NtQueryInformationProcess(
     );
 
 #if (NTDDI_VERSION >= NTDDI_WS03)
+
+#define PROCESS_GET_NEXT_FLAGS_PREVIOUS_PROCESS 0x00000001
+
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -1213,6 +1315,15 @@ NTAPI
 NtGetCurrentProcessorNumber(
     VOID
     );
+
+#if (NTDDI_VERSION >= NTDDI_WIN7)
+NTSYSCALLAPI
+ULONG
+NTAPI
+NtGetCurrentProcessorNumberEx(
+    _Out_opt_ PPROCESSOR_NUMBER ProcNumber
+    );
+#endif
 
 NTSYSCALLAPI
 NTSTATUS
@@ -1320,14 +1431,14 @@ NtQueueApcThread(
 
 #if (NTDDI_VERSION >= NTDDI_WIN7)
 
-#define APC_FORCE_THREAD_SIGNAL ((HANDLE)1) // UserApcReserveHandle
+#define APC_FORCE_THREAD_SIGNAL ((HANDLE)1) // ReserveHandle
 
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtQueueApcThreadEx(
     _In_ HANDLE ThreadHandle,
-    _In_opt_ HANDLE UserApcReserveHandle,
+    _In_opt_ HANDLE ReserveHandle, // NtAllocateReserveObject
     _In_ PPS_APC_ROUTINE ApcRoutine,
     _In_opt_ PVOID ApcArgument1,
     _In_opt_ PVOID ApcArgument2,
@@ -1692,6 +1803,7 @@ NtCreateUserProcess(
 #define THREAD_CREATE_FLAGS_HIDE_FROM_DEBUGGER 0x00000004
 #define THREAD_CREATE_FLAGS_HAS_SECURITY_DESCRIPTOR 0x00000010 // ?
 #define THREAD_CREATE_FLAGS_ACCESS_CHECK_IN_TARGET 0x00000020 // ?
+#define THREAD_CREATE_FLAGS_SKIP_THREAD_SUSPEND 0x00000040 // ?
 #define THREAD_CREATE_FLAGS_INITIAL_THREAD 0x00000080
 // end_rev
 

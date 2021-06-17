@@ -1,3 +1,56 @@
+// Protection constants
+
+#define PAGE_NOACCESS 0x01
+#define PAGE_READONLY 0x02
+#define PAGE_READWRITE 0x04
+#define PAGE_WRITECOPY 0x08
+#define PAGE_EXECUTE 0x10
+#define PAGE_EXECUTE_READ 0x20
+#define PAGE_EXECUTE_READWRITE 0x40
+#define PAGE_EXECUTE_WRITECOPY 0x80
+#define PAGE_GUARD 0x100
+#define PAGE_NOCACHE 0x200
+#define PAGE_WRITECOMBINE 0x400
+
+#define PAGE_REVERT_TO_FILE_MAP     0x80000000
+#define PAGE_ENCLAVE_THREAD_CONTROL 0x80000000
+#define PAGE_TARGETS_NO_UPDATE      0x40000000
+#define PAGE_TARGETS_INVALID        0x40000000
+#define PAGE_ENCLAVE_UNVALIDATED    0x20000000
+
+// Region and section constants
+
+#define MEM_COMMIT 0x00001000
+#define MEM_RESERVE 0x00002000
+#define MEM_DECOMMIT 0x00004000
+#define MEM_RELEASE 0x00008000
+#define MEM_FREE 0x00010000
+#define MEM_PRIVATE 0x00020000
+#define MEM_MAPPED 0x00040000
+#define MEM_RESET 0x00080000
+#define MEM_TOP_DOWN 0x00100000
+#define MEM_WRITE_WATCH 0x00200000
+#define MEM_PHYSICAL 0x00400000
+#define MEM_ROTATE 0x00800000
+#define MEM_DIFFERENT_IMAGE_BASE_OK 0x00800000
+#define MEM_RESET_UNDO 0x01000000
+#define MEM_LARGE_PAGES 0x20000000
+#define MEM_DOS_LIM 0x40000000
+#define MEM_4MB_PAGES 0x80000000
+
+#define SEC_BASED 0x00200000
+#define SEC_NO_CHANGE 0x00400000
+#define SEC_FILE 0x00800000
+#define SEC_IMAGE 0x01000000
+#define SEC_PROTECTED_IMAGE 0x02000000
+#define SEC_RESERVE 0x04000000
+#define SEC_COMMIT 0x08000000
+#define SEC_NOCACHE 0x10000000
+#define SEC_GLOBAL 0x20000000
+#define SEC_WRITECOMBINE 0x40000000
+#define SEC_LARGE_PAGES 0x80000000
+#define SEC_IMAGE_NO_EXECUTE (SEC_IMAGE | SEC_NOCACHE)
+
 // private
 typedef enum _MEMORY_INFORMATION_CLASS
 {
@@ -8,10 +61,12 @@ typedef enum _MEMORY_INFORMATION_CLASS
     MemoryWorkingSetExInformation, // MEMORY_WORKING_SET_EX_INFORMATION
     MemorySharedCommitInformation, // MEMORY_SHARED_COMMIT_INFORMATION
     MemoryImageInformation, // MEMORY_IMAGE_INFORMATION
-    MemoryRegionInformationEx,
+    MemoryRegionInformationEx, // MEMORY_REGION_INFORMATION
     MemoryPrivilegedBasicInformation,
     MemoryEnclaveImageInformation, // MEMORY_ENCLAVE_IMAGE_INFORMATION // since REDSTONE3
-    MemoryBasicInformationCapped
+    MemoryBasicInformationCapped, // 10
+    MemoryPhysicalContiguityInformation, // MEMORY_PHYSICAL_CONTIGUITY_INFORMATION // since 20H1
+    MaxMemoryInfoClass
 } MEMORY_INFORMATION_CLASS;
 
 typedef struct _MEMORY_WORKING_SET_BLOCK
@@ -58,6 +113,7 @@ typedef struct _MEMORY_REGION_INFORMATION
     SIZE_T RegionSize;
     SIZE_T CommitSize;
     ULONG_PTR PartitionId; // 19H1
+    ULONG_PTR NodePreference; // 20H1
 } MEMORY_REGION_INFORMATION, *PMEMORY_REGION_INFORMATION;
 
 // private 
@@ -154,6 +210,40 @@ typedef struct _MEMORY_ENCLAVE_IMAGE_INFORMATION
     UCHAR UniqueID[32];
     UCHAR AuthorID[32];
 } MEMORY_ENCLAVE_IMAGE_INFORMATION, *PMEMORY_ENCLAVE_IMAGE_INFORMATION;
+
+// private
+typedef enum _MEMORY_PHYSICAL_CONTIGUITY_UNIT_STATE
+{
+    MemoryNotContiguous,
+    MemoryAlignedAndContiguous,
+    MemoryNotResident,
+    MemoryNotEligibleToMakeContiguous,
+    MemoryContiguityStateMax,
+} MEMORY_PHYSICAL_CONTIGUITY_UNIT_STATE;
+
+// private
+typedef struct _MEMORY_PHYSICAL_CONTIGUITY_UNIT_INFORMATION
+{
+    union
+    {
+        ULONG AllInformation;
+        struct
+        {
+            ULONG State : 2;
+            ULONG Reserved : 30;
+        };
+    };
+} MEMORY_PHYSICAL_CONTIGUITY_UNIT_INFORMATION, *PMEMORY_PHYSICAL_CONTIGUITY_UNIT_INFORMATION;
+
+// private
+typedef struct _MEMORY_PHYSICAL_CONTIGUITY_INFORMATION
+{
+    PVOID VirtualAddress;
+    ULONG_PTR Size;
+    ULONG_PTR ContiguityUnitSize;
+    ULONG Flags;
+    PMEMORY_PHYSICAL_CONTIGUITY_UNIT_INFORMATION ContiguityUnitInformation;
+} MEMORY_PHYSICAL_CONTIGUITY_INFORMATION, *PMEMORY_PHYSICAL_CONTIGUITY_INFORMATION;
 
 #define MMPFNLIST_ZERO 0
 #define MMPFNLIST_FREE 1
@@ -324,7 +414,14 @@ typedef struct _SECTION_INTERNAL_IMAGE_INFORMATION
         struct
         {
             ULONG ImageExportSuppressionEnabled : 1;
-            ULONG Reserved : 31;
+            ULONG ImageCetShadowStacksReady : 1; // 20H1
+            ULONG ImageXfgEnabled : 1; // 20H2
+            ULONG ImageCetShadowStacksStrictMode : 1;
+            ULONG ImageCetSetContextIpValidationRelaxedMode : 1;
+            ULONG ImageCetDynamicApisAllowInProc : 1;
+            ULONG ImageCetDowngradeReserved1 : 1;
+            ULONG ImageCetDowngradeReserved2 : 1;
+            ULONG Reserved : 24;
         };
     };
 } SECTION_INTERNAL_IMAGE_INFORMATION, *PSECTION_INTERNAL_IMAGE_INFORMATION;
@@ -334,10 +431,6 @@ typedef enum _SECTION_INHERIT
     ViewShare = 1,
     ViewUnmap = 2
 } SECTION_INHERIT;
-
-#define SEC_BASED 0x200000
-#define SEC_NO_CHANGE 0x400000
-#define SEC_GLOBAL 0x20000000
 
 #define MEM_EXECUTE_OPTION_DISABLE 0x1
 #define MEM_EXECUTE_OPTION_ENABLE 0x2
@@ -360,6 +453,21 @@ NtAllocateVirtualMemory(
     _In_ ULONG AllocationType,
     _In_ ULONG Protect
     );
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS5)
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtAllocateVirtualMemoryEx(
+    _In_ HANDLE ProcessHandle,
+    _Inout_ _At_(*BaseAddress, _Readable_bytes_(*RegionSize) _Writable_bytes_(*RegionSize) _Post_readable_byte_size_(*RegionSize)) PVOID *BaseAddress,
+    _Inout_ PSIZE_T RegionSize,
+    _In_ ULONG AllocationType,
+    _In_ ULONG PageProtection,
+    _Inout_updates_opt_(ExtendedParameterCount) PMEM_EXTENDED_PARAMETER ExtendedParameters,
+    _In_ ULONG ExtendedParameterCount
+    );
+#endif
 
 NTSYSCALLAPI
 NTSTATUS
@@ -416,6 +524,15 @@ NtQueryVirtualMemory(
     _Out_opt_ PSIZE_T ReturnLength
     );
 
+NTSYSCALLAPI
+NTSTATUS
+NTAPI
+NtFlushVirtualMemory(
+    _In_ HANDLE ProcessHandle,
+    _Inout_ PVOID *BaseAddress,
+    _Inout_ PSIZE_T RegionSize,
+    _Out_ struct _IO_STATUS_BLOCK* IoStatus
+    );
 
 // begin_private
 typedef enum _VIRTUAL_MEMORY_INFORMATION_CLASS
@@ -424,7 +541,10 @@ typedef enum _VIRTUAL_MEMORY_INFORMATION_CLASS
     VmPagePriorityInformation,
     VmCfgCallTargetInformation, // CFG_CALL_TARGET_LIST_INFORMATION // REDSTONE2
     VmPageDirtyStateInformation, // REDSTONE3
-    VmImageHotPatchInformation // 19H1
+    VmImageHotPatchInformation, // 19H1
+    VmPhysicalContiguityInformation, // 20H1
+    VmVirtualMachinePrepopulateInformation,
+    MaxVmInfoClass
 } VIRTUAL_MEMORY_INFORMATION_CLASS;
 
 typedef struct _MEMORY_RANGE_ENTRY
@@ -510,7 +630,7 @@ NtCreateSectionEx(
     _In_ ULONG SectionPageProtection,
     _In_ ULONG AllocationAttributes,
     _In_opt_ HANDLE FileHandle,
-    _In_ PMEM_EXTENDED_PARAMETER ExtendedParameters,
+    _Inout_updates_opt_(ExtendedParameterCount) PMEM_EXTENDED_PARAMETER ExtendedParameters,
     _In_ ULONG ExtendedParameterCount
     );
 #endif
@@ -539,6 +659,23 @@ NtMapViewOfSection(
     _In_ ULONG AllocationType,
     _In_ ULONG Win32Protect
     );
+
+#if (NTDDI_VERSION >= NTDDI_WIN10_RS5)
+NTSYSAPI
+NTSTATUS
+NTAPI
+NtMapViewOfSectionEx(
+    _In_ HANDLE SectionHandle,
+    _In_ HANDLE ProcessHandle,
+    _Inout_ _At_(*BaseAddress, _Readable_bytes_(*ViewSize) _Writable_bytes_(*ViewSize) _Post_readable_byte_size_(*ViewSize)) PVOID *BaseAddress,
+    _Inout_opt_ PLARGE_INTEGER SectionOffset,
+    _Inout_ PSIZE_T ViewSize,
+    _In_ ULONG AllocationType,
+    _In_ ULONG Win32Protect,
+    _Inout_updates_opt_(ParameterCount) PMEM_EXTENDED_PARAMETER ExtendedParameters,
+    _In_ ULONG ExtendedParameterCount
+    );
+#endif
 
 NTSYSCALLAPI
 NTSTATUS
@@ -753,6 +890,19 @@ NtAllocateUserPhysicalPages(
     _Out_writes_(*NumberOfPages) PULONG_PTR UserPfnArray
     );
 
+#if (NTDDI_VERSION >= NTDDI_WIN10)
+NTSYSCALLAPI
+NTSTATUS
+NTAPI
+NtAllocateUserPhysicalPagesEx(
+    _In_ HANDLE ProcessHandle,
+    _Inout_ PULONG_PTR NumberOfPages,
+    _Out_writes_(*NumberOfPages) PULONG_PTR UserPfnArray,
+    _Inout_updates_opt_(ParameterCount) PMEM_EXTENDED_PARAMETER ExtendedParameters,
+    _In_ ULONG ExtendedParameterCount
+    );
+#endif
+
 NTSYSCALLAPI
 NTSTATUS
 NTAPI
@@ -761,19 +911,6 @@ NtFreeUserPhysicalPages(
     _Inout_ PULONG_PTR NumberOfPages,
     _In_reads_(*NumberOfPages) PULONG_PTR UserPfnArray
     );
-
-// Sessions
-
-#if (NTDDI_VERSION >= NTDDI_VISTA)
-NTSYSCALLAPI
-NTSTATUS
-NTAPI
-NtOpenSession(
-    _Out_ PHANDLE SessionHandle,
-    _In_ ACCESS_MASK DesiredAccess,
-    _In_ POBJECT_ATTRIBUTES ObjectAttributes
-    );
-#endif
 
 // Misc.
 
@@ -827,7 +964,7 @@ NtFlushWriteBuffer(
 
 // Enclave support
 
-NTSYSAPI
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtCreateEnclave(
@@ -842,7 +979,7 @@ NtCreateEnclave(
     _Out_opt_ PULONG EnclaveError
     );
 
-NTSYSAPI
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtLoadEnclaveData(
@@ -857,7 +994,7 @@ NtLoadEnclaveData(
     _Out_opt_ PULONG EnclaveError
     );
 
-NTSYSAPI
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtInitializeEnclave(
@@ -869,7 +1006,7 @@ NtInitializeEnclave(
     );
 
 // rev
-NTSYSAPI
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtTerminateEnclave(
@@ -878,7 +1015,7 @@ NtTerminateEnclave(
     );
 
 // rev
-NTSYSAPI
+NTSYSCALLAPI
 NTSTATUS
 NTAPI
 NtCallEnclave(

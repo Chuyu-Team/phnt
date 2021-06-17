@@ -372,7 +372,7 @@ NTSTATUS
 NTAPI
 LdrRelocateImage(
     _In_ PVOID NewBase,
-    _In_ PSTR LoaderName,
+    _In_opt_ PSTR LoaderName,
     _In_ NTSTATUS Success,
     _In_ NTSTATUS Conflict,
     _In_ NTSTATUS Invalid
@@ -383,8 +383,8 @@ NTSTATUS
 NTAPI
 LdrRelocateImageWithBias(
     _In_ PVOID NewBase,
-    _In_ LONGLONG Bias,
-    _In_ PSTR LoaderName,
+    _In_opt_ LONGLONG Bias,
+    _In_opt_ PSTR LoaderName,
     _In_ NTSTATUS Success,
     _In_ NTSTATUS Conflict,
     _In_ NTSTATUS Invalid
@@ -540,16 +540,32 @@ LdrStandardizeSystemPath(
     _In_ PUNICODE_STRING SystemPath
     );
 
+#if (NTDDI_VERSION >= NTDDI_WINBLUE)
+typedef struct _LDR_FAILURE_DATA
+{
+    NTSTATUS Status;
+    WCHAR DllName[0x20];
+    WCHAR AdditionalInfo[0x20];
+} LDR_FAILURE_DATA, *PLDR_FAILURE_DATA;
+
+NTSYSAPI
+PLDR_FAILURE_DATA
+NTAPI
+LdrGetFailureData(
+    VOID
+    );
+#endif
+
 // private
 typedef struct _PS_MITIGATION_OPTIONS_MAP
 {
-    ULONG_PTR Map[2];
+    ULONG_PTR Map[3]; // 2 < 20H1
 } PS_MITIGATION_OPTIONS_MAP, *PPS_MITIGATION_OPTIONS_MAP;
 
 // private
 typedef struct _PS_MITIGATION_AUDIT_OPTIONS_MAP
 {
-    ULONG_PTR Map[2];
+    ULONG_PTR Map[3]; // 2 < 20H1
 } PS_MITIGATION_AUDIT_OPTIONS_MAP, *PPS_MITIGATION_AUDIT_OPTIONS_MAP;
 
 // private
@@ -659,6 +675,17 @@ NTSYSAPI
 NTSTATUS
 NTAPI
 LdrFindResource_U(
+    _In_ PVOID DllHandle,
+    _In_ PLDR_RESOURCE_INFO ResourceInfo,
+    _In_ ULONG Level,
+    _Out_ PIMAGE_RESOURCE_DATA_ENTRY *ResourceDataEntry
+    );
+
+NTSYSAPI
+NTSTATUS
+NTAPI
+LdrFindResourceEx_U(
+    _In_ ULONG Flags,
     _In_ PVOID DllHandle,
     _In_ PLDR_RESOURCE_INFO ResourceInfo,
     _In_ ULONG Level,
